@@ -5,14 +5,14 @@ import bcrypt from 'bcrypt';
 
 export const login = async (req: Request, res: Response) => {
   // TODO: If the user exists and the password is correct, return a JWT token
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
   const user = await User.findOne({
-    where: { username: email },
+    where: { username: username },
   });
 
   if (!user) {
-    return res.status(401).json({ message: 'Authentication failed' });
+    return res.status(400).json({ message: 'Bad Request' });
   }
 
   const passwordIsValid = await bcrypt.compare(password, user.password);
@@ -22,7 +22,7 @@ export const login = async (req: Request, res: Response) => {
 
   const secretKey = process.env.JWT_SECRET_KEY || '';
 
-  const token = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
+  const token = jwt.sign({ username }, secretKey, { expiresIn: '1h' });
 
   return res.json({ token });
 
